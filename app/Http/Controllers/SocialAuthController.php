@@ -6,54 +6,109 @@ use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SocialAuthController extends Controller
 {
     // GOOGLE LOGIN
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        try {
+            // Clear any existing Google session
+            session()->forget('_token');
+            
+            // Force account selection by adding logout parameter
+            $redirectUrl = Socialite::driver('google')->redirect()->getTargetUrl();
+            $redirectUrl .= '&logout=' . urlencode('http://127.0.0.1:8000/login');
+            
+            return redirect($redirectUrl);
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Unable to redirect to Google. Please try again.');
+        }
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
-        $googleUser = Socialite::driver('google')->user();
+        try {
+            // Log the request for debugging
+            Log::info('Google OAuth callback received', [
+                'state' => $request->get('state'),
+                'code' => $request->get('code'),
+                'error' => $request->get('error'),
+            ]);
 
-        $user = User::firstOrCreate(
-            ['email' => $googleUser->getEmail()],
-            [
-                'name' => $googleUser->getName(),
-                'password' => bcrypt(str()->random(16)),
-                'google_id' => $googleUser->getId(),
-            ]
-        );
+            $googleUser = Socialite::driver('google')->user();
 
-        Auth::login($user);
+            $user = User::firstOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'name' => $googleUser->getName(),
+                    'password' => bcrypt(str()->random(16)),
+                    'provider' => 'google',
+                    'provider_id' => $googleUser->getId(),
+                    'google_id' => $googleUser->getId(),
+                ]
+            );
 
-        return redirect('/dashboard'); // Change this to your landing page
+            Auth::login($user);
+
+            return redirect('/'); // Redirect to landing page
+        } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+            // Log the error for debugging
+            Log::error('InvalidStateException in Google OAuth', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all(),
+            ]);
+            
+            // Handle invalid state exception
+            return redirect('/login')->with('error', 'Authentication failed. Please try again.');
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Exception in Google OAuth', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all(),
+            ]);
+            
+            // Handle other exceptions
+            return redirect('/login')->with('error', 'An error occurred during authentication.');
+        }
     }
 
     // FACEBOOK LOGIN
     public function redirectToFacebook()
     {
-        return Socialite::driver('facebook')->redirect();
+        try {
+            return Socialite::driver('facebook')->redirect();
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Unable to redirect to Facebook. Please try again.');
+        }
     }
 
-    public function handleFacebookCallback()
+    public function handleFacebookCallback(Request $request)
     {
-        $fbUser = Socialite::driver('facebook')->user();
+        try {
+            $fbUser = Socialite::driver('facebook')->user();
 
-        $user = User::firstOrCreate(
-            ['email' => $fbUser->getEmail()],
-            [
-                'name' => $fbUser->getName(),
-                'password' => bcrypt(str()->random(16)),
-                'facebook_id' => $fbUser->getId(),
-            ]
-        );
+            $user = User::firstOrCreate(
+                ['email' => $fbUser->getEmail()],
+                [
+                    'name' => $fbUser->getName(),
+                    'password' => bcrypt(str()->random(16)),
+                    'provider' => 'facebook',
+                    'provider_id' => $fbUser->getId(),
+                    'facebook_id' => $fbUser->getId(),
+                ]
+            );
 
-        Auth::login($user);
+            Auth::login($user);
 
-        return redirect('/landing'); // Change this to your landing page
+            return redirect('/'); // Redirect to landing page
+        } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+            // Handle invalid state exception
+            return redirect('/login')->with('error', 'Authentication failed. Please try again.');
+        } catch (\Exception $e) {
+            // Handle other exceptions
+            return redirect('/login')->with('error', 'An error occurred during authentication.');
+        }
     }
 }
