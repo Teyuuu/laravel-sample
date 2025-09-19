@@ -144,6 +144,75 @@
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTJ8xFYlr_rPd859VR_4Lpc-LF99vtAjg&callback=initMap">
 </script>
 
+<script>
+function initMap() {
+  try {
+    // Check if the map container exists
+    const mapElement = document.getElementById("map");
+    if (!mapElement) {
+      console.error("Map container not found");
+      return;
+    }
+    
+    // Bacoor City Hall coordinates
+    const bacoorCityHall = { lat: 14.43121903077729, lng:  120.96818005233645 };
+    
+    // Create the map
+    const map = new google.maps.Map(mapElement, {
+      zoom: 15,
+      center: bacoorCityHall,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        }
+      ]
+    });
+    
+    // Create a marker for Bacoor City Hall
+    const marker = new google.maps.Marker({
+      position: bacoorCityHall,
+      map: map,
+      title: "Bacoor City Hall",
+      animation: google.maps.Animation.DROP
+    });
+    
+    // Create an info window
+    const infoWindow = new google.maps.InfoWindow({
+      content: "<div style='padding: 10px;'><h3 style='margin: 0 0 10px 0; color: #004aad;'>🏛️ Bacoor City Hall</h3><p style='margin: 0;'>City Government Center<br>Bacoor, Cavite, Philippines</p></div>"
+    });
+    
+    // Add click event to marker
+    marker.addListener("click", () => {
+      infoWindow.open(map, marker);
+    });
+    
+    // Open info window by default
+    infoWindow.open(map, marker);
+    
+    console.log("Google Maps initialized successfully");
+  } catch (error) {
+    console.error("Error initializing Google Maps:", error);
+    // Fallback: show a message if map fails to load
+    const mapElement = document.getElementById("map");
+    if (mapElement) {
+      mapElement.innerHTML = "<div style='padding: 20px; text-align: center; color: #666;'><p>📍 Bacoor City Hall</p><p>City Government Center<br>Bacoor, Cavite, Philippines</p></div>";
+    }
+  }
+}
+
+// Handle Google Maps API loading errors
+window.gm_authFailure = function() {
+  console.error("Google Maps API authentication failed");
+  const mapElement = document.getElementById("map");
+  if (mapElement) {
+    mapElement.innerHTML = "<div style='padding: 20px; text-align: center; color: #666;'><p>📍 Bacoor City Hall</p><p>City Government Center<br>Bacoor, Cavite, Philippines</p><p style='color: #999; font-size: 12px;'>Map temporarily unavailable</p></div>";
+  }
+};
+</script>
+
   <!-- Services ---------------------------------------------------------------->
   <section id="services" class="services">
     <a href="/mayor-permit" class="service-card">
