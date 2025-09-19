@@ -30,37 +30,63 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const apiKey = "fd53018d3da7c2fbd618bf32a9e7e9e8";
+// Coordinates for Bacoor City Hall
+const latitude = 14.4064;
+const longitude = 120.9408;
 
-  async function getWeather(city = "Bacoor") {
-    try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
-      const data = await res.json();
+const weatherMap = {
+  0: { icon: "fas fa-sun", text: "Clear sky" },
+  1: { icon: "fas fa-sun", text: "Mainly clear" },
+  2: { icon: "fas fa-cloud-sun", text: "Partly cloudy" },
+  3: { icon: "fas fa-cloud", text: "Overcast" },
+  45: { icon: "fas fa-smog", text: "Fog" },
+  48: { icon: "fas fa-smog", text: "Depositing rime fog" },
+  51: { icon: "fas fa-cloud-rain", text: "Light drizzle" },
+  61: { icon: "fas fa-cloud-showers-heavy", text: "Rain" },
+  71: { icon: "fas fa-snowflake", text: "Snowfall" },
+  80: { icon: "fas fa-cloud-showers-heavy", text: "Rain showers" },
+  95: { icon: "fas fa-bolt", text: "Thunderstorm" }
+};
 
-      document.querySelector(".day").textContent = new Date().toLocaleDateString("en-US", { weekday: "long" });
-      document.querySelector(".date").textContent = new Date().toLocaleDateString();
-      document.querySelector(".location").textContent = `📍 ${data.name}, ${data.sys.country}`;
-      document.querySelector(".temp").textContent = `${Math.round(data.main.temp)}°C`;
-      document.querySelector(".status").textContent = data.weather[0].description;
-      document.querySelector("#humidity").textContent = `${data.main.humidity}%`;
-      document.querySelector("#wind").textContent = `${data.wind.speed} km/h`;
-      document.querySelector("#today-temp").textContent = `${Math.round(data.main.temp)}°C`;
+async function fetchWeather() {
+  try {
+    const response = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m,precipitation_probability,windspeed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
+    );
+    const data = await response.json();
 
-      // Change weather icon dynamically
-      const icon = data.weather[0].main.toLowerCase();
-      const iconEl = document.querySelector("#weather-icon");
-      if (icon.includes("cloud")) iconEl.className = "fas fa-cloud";
-      else if (icon.includes("rain")) iconEl.className = "fas fa-cloud-showers-heavy";
-      else if (icon.includes("clear")) iconEl.className = "fas fa-sun";
-      else if (icon.includes("snow")) iconEl.className = "fas fa-snowflake";
-      else iconEl.className = "fas fa-smog";
+    // Current weather
+    const current = data.current_weather;
+    const weather = weatherMap[current.weathercode] || { icon: "fas fa-question", text: "Unknown" };
 
-    } catch (err) {
-      alert("City not found!");
-    }
+    // Fill left card
+    document.querySelector(".day").textContent = "Today";
+    document.querySelector(".date").textContent = new Date().toDateString();
+    document.querySelector(".location").textContent = "📍 Bacoor City Hall";
+    document.querySelector(".temp").textContent = current.temperature + "°C";
+    document.querySelector(".status").textContent = weather.text;
+    document.getElementById("weather-icon").className = weather.icon;
+
+    // Fill right card details
+    const currentHour = new Date().getHours();
+    document.getElementById("precip").textContent =
+      data.hourly.precipitation_probability[currentHour] + "%";
+    document.getElementById("humidity").textContent =
+      data.hourly.relative_humidity_2m[currentHour] + "%";
+    document.getElementById("wind").textContent =
+      current.windspeed + " km/h";
+
+    // Forecast
+    document.getElementById("today-temp").textContent =
+      data.daily.temperature_2m_max[0] + "°C";
+    document.getElementById("tomorrow-temp").textContent =
+      data.daily.temperature_2m_max[1] + "°C";
+  } catch (error) {
+    console.error("Weather API error:", error);
   }
+}
 
-  getWeather(); // load default Paris
+fetchWeather();
 
 const hamburger = document.querySelector('.hamburger');
 const navLinks = document.querySelector('.nav-links');
