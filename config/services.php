@@ -39,6 +39,9 @@ return [
     'client_id' => env('GOOGLE_CLIENT_ID'),
     'client_secret' => env('GOOGLE_CLIENT_SECRET'),
     'redirect' => env('GOOGLE_REDIRECT_URL'),
+    'prompt' => 'select_account consent',
+    'access_type' => 'offline',
+    'approval_prompt' => 'force',
     ],
 
     'facebook' => [

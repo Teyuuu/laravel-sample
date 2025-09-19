@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SocialAuthController;
 
@@ -26,6 +27,18 @@ Route::get('/forgot-password', function () {
 Route::post('/forgot-password', function () {
     return 'Password reset link sent!';
 })->name('password.email');
+
+// Logout route
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    
+    // Clear any cached OAuth sessions
+    request()->session()->forget('_token');
+    
+    return redirect('/');
+})->name('logout');
 
 // Social authentication routes
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle']);
