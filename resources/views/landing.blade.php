@@ -65,6 +65,41 @@
         </form>
     @endguest
   </div>
+  
+  <!-- Flash Messages -->
+  @if(session('success'))
+    <div class="alert alert-success" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #4CAF50; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      {{ session('success') }}
+    </div>
+  @endif
+  
+  @if(session('error'))
+    <div class="alert alert-error" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #f44336; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      {{ session('error') }}
+    </div>
+  @endif
+  
+  @if(session('info'))
+    <div class="alert alert-info" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #2196F3; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      {{ session('info') }}
+    </div>
+  @endif
+  
+  <script>
+    // Auto-hide flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function(alert) {
+        setTimeout(function() {
+          alert.style.opacity = '0';
+          alert.style.transform = 'translateX(100%)';
+          setTimeout(function() {
+            alert.remove();
+          }, 300);
+        }, 5000);
+      });
+    });
+  </script>
 
   <nav id="nav-menu">
     <ul class="nav-links">
@@ -142,6 +177,126 @@
 <!-- Google Maps Script -->
 <script async 
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTJ8xFYlr_rPd859VR_4Lpc-LF99vtAjg&callback=initMap">
+</script>
+
+<script>
+function initMap() {
+  try {
+    // Check if the map container exists
+    const mapElement = document.getElementById("map");
+    if (!mapElement) {
+      console.error("Map container not found");
+      return;
+    }
+    
+    // Bacoor City Hall coordinates
+    const bacoorCityHall = { lat: 14.43121903077729, lng:  120.96818005233645 };
+    
+    // Create the map
+    const map = new google.maps.Map(mapElement, {
+      zoom: 16,
+      center: bacoorCityHall,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: true,
+      streetViewControl: true,
+      fullscreenControl: true,
+      zoomControl: true,
+      styles: [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "administrative",
+          elementType: "labels",
+          stylers: [{ visibility: "simplified" }]
+        }
+      ]
+    });
+    
+    // Create a custom marker icon
+    const markerIcon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" fill="#004aad" stroke="#fff" stroke-width="2"/>
+          <text x="20" y="26" text-anchor="middle" fill="white" font-family="Arial" font-size="16">🏛️</text>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(40, 40),
+      anchor: new google.maps.Point(20, 20)
+    };
+    
+    // Create a marker for Bacoor City Hall
+    const marker = new google.maps.Marker({
+      position: bacoorCityHall,
+      map: map,
+      title: "Bacoor City Hall",
+      icon: markerIcon,
+      animation: google.maps.Animation.DROP
+    });
+    
+    // Create an info window with enhanced content
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <div style="padding: 15px; max-width: 250px;">
+          <h3 style="margin: 0 0 10px 0; color: #004aad; font-size: 16px;">
+            🏛️ Bacoor City Hall
+          </h3>
+          <p style="margin: 0 0 8px 0; color: #333; font-size: 14px;">
+            <strong>City Government Center</strong><br>
+            Bacoor, Cavite, Philippines
+          </p>
+          <p style="margin: 0; color: #666; font-size: 12px;">
+            📍 Coordinates: ${bacoorCityHall.lat.toFixed(6)}, ${bacoorCityHall.lng.toFixed(6)}
+          </p>
+          <div style="margin-top: 10px;">
+            <button onclick="window.open('https://maps.google.com/?q=${bacoorCityHall.lat},${bacoorCityHall.lng}', '_blank')" 
+                    style="background: #004aad; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+              Open in Google Maps
+            </button>
+          </div>
+        </div>
+      `
+    });
+    
+    // Add click event to marker
+    marker.addListener("click", () => {
+      infoWindow.open(map, marker);
+    });
+    
+    // Open info window by default
+    infoWindow.open(map, marker);
+    
+    // Add map bounds to ensure proper view
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(bacoorCityHall);
+    map.fitBounds(bounds);
+    
+    // Add a small padding to the bounds
+    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+      if (map.getZoom() > 18) map.setZoom(16);
+    });
+    
+    console.log("Google Maps initialized successfully");
+  } catch (error) {
+    console.error("Error initializing Google Maps:", error);
+    // Fallback: show a message if map fails to load
+    const mapElement = document.getElementById("map");
+    if (mapElement) {
+      mapElement.innerHTML = "<div style='padding: 20px; text-align: center; color: #666;'><p>📍 Bacoor City Hall</p><p>City Government Center<br>Bacoor, Cavite, Philippines</p></div>";
+    }
+  }
+}
+
+// Handle Google Maps API loading errors
+window.gm_authFailure = function() {
+  console.error("Google Maps API authentication failed");
+  const mapElement = document.getElementById("map");
+  if (mapElement) {
+    mapElement.innerHTML = "<div style='padding: 20px; text-align: center; color: #666;'><p>📍 Bacoor City Hall</p><p>City Government Center<br>Bacoor, Cavite, Philippines</p><p style='color: #999; font-size: 12px;'>Map temporarily unavailable</p></div>";
+  }
+};
 </script>
 
   <!-- Services ---------------------------------------------------------------->
