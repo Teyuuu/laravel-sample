@@ -24,13 +24,15 @@ class SocialAuthController extends Controller
             [
                 'name' => $googleUser->getName(),
                 'password' => bcrypt(str()->random(16)),
+                'provider' => 'google',
+                'provider_id' => $googleUser->getId(),
                 'google_id' => $googleUser->getId(),
             ]
         );
 
         Auth::login($user);
 
-        return redirect('/dashboard'); // Change this to your landing page
+        return redirect('/'); // Redirect to landing page
     }
 
     // FACEBOOK LOGIN
@@ -48,12 +50,14 @@ class SocialAuthController extends Controller
             [
                 'name' => $fbUser->getName(),
                 'password' => bcrypt(str()->random(16)),
+                'provider' => 'facebook',
+                'provider_id' => $fbUser->getId(),
                 'facebook_id' => $fbUser->getId(),
             ]
         );
 
         Auth::login($user);
 
-        return redirect('/landing'); // Change this to your landing page
+        return redirect('/'); // Redirect to landing page
     }
 }

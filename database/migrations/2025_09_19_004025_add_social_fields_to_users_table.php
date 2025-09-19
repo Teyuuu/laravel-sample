@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('provider')->nullable();   // e.g., google, facebook
             $table->string('provider_id')->nullable(); // user ID from provider
+            $table->string('google_id')->nullable();   // Google user ID
+            $table->string('facebook_id')->nullable(); // Facebook user ID
         });
     }
 
@@ -23,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['provider', 'provider_id']);
+            $table->dropColumn(['provider', 'provider_id', 'google_id', 'facebook_id']);
         });
     }
 };
