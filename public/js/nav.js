@@ -96,25 +96,6 @@ const navLinks = document.querySelector('.nav-links');
     navLinks.classList.toggle('active');
   });
 
-  // Initialize Map
-  function initMap() {
-    const bacoorCityHall = { lat: 14.4593576, lng: 120.9591243 };
-
-    const map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 16,
-      center: bacoorCityHall,
-      disableDefaultUI: true, // removes all default controls
-      draggable: false,       // prevent dragging
-      scrollwheel: false,     // disable zoom with scroll
-      disableDoubleClickZoom: true, // prevent zoom on double click
-    });
-
-    new google.maps.Marker({
-      position: bacoorCityHall,
-      map: map,
-      title: "Bacoor City Hall",
-    });
-  }
 
 async 
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTJ8xFYlr_rPd859VR_4Lpc-LF99vtAjg&callback=initMap"
