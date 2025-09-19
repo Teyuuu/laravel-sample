@@ -45,10 +45,10 @@
                 <!-- Social Login -->
 <div class="social-login">
   <p class="divider">Or continue with</p>
-  <a href="{{ url('auth/google') }}" class="social-btn google">
+  <a href="/auth/google" class="social-btn google">
     <i class="fab fa-google"></i> Sign in with Google
   </a>
-  <a href="{{ url('auth/facebook') }}" class="social-btn facebook">
+  <a href="/auth/facebook" class="social-btn facebook">
     <i class="fab fa-facebook-f"></i> Sign in with Facebook
   </a>
 </div>
