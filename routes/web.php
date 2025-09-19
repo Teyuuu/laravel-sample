@@ -60,6 +60,7 @@ Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFaceb
 
 
 
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
