@@ -159,29 +159,70 @@ function initMap() {
     
     // Create the map
     const map = new google.maps.Map(mapElement, {
-      zoom: 15,
+      zoom: 16,
       center: bacoorCityHall,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: true,
+      streetViewControl: true,
+      fullscreenControl: true,
+      zoomControl: true,
       styles: [
         {
           featureType: "poi",
           elementType: "labels",
           stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "administrative",
+          elementType: "labels",
+          stylers: [{ visibility: "simplified" }]
         }
       ]
     });
+    
+    // Create a custom marker icon
+    const markerIcon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" fill="#004aad" stroke="#fff" stroke-width="2"/>
+          <text x="20" y="26" text-anchor="middle" fill="white" font-family="Arial" font-size="16">🏛️</text>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(40, 40),
+      anchor: new google.maps.Point(20, 20)
+    };
     
     // Create a marker for Bacoor City Hall
     const marker = new google.maps.Marker({
       position: bacoorCityHall,
       map: map,
       title: "Bacoor City Hall",
+      icon: markerIcon,
       animation: google.maps.Animation.DROP
     });
     
-    // Create an info window
+    // Create an info window with enhanced content
     const infoWindow = new google.maps.InfoWindow({
-      content: "<div style='padding: 10px;'><h3 style='margin: 0 0 10px 0; color: #004aad;'>🏛️ Bacoor City Hall</h3><p style='margin: 0;'>City Government Center<br>Bacoor, Cavite, Philippines</p></div>"
+      content: `
+        <div style="padding: 15px; max-width: 250px;">
+          <h3 style="margin: 0 0 10px 0; color: #004aad; font-size: 16px;">
+            🏛️ Bacoor City Hall
+          </h3>
+          <p style="margin: 0 0 8px 0; color: #333; font-size: 14px;">
+            <strong>City Government Center</strong><br>
+            Bacoor, Cavite, Philippines
+          </p>
+          <p style="margin: 0; color: #666; font-size: 12px;">
+            📍 Coordinates: ${bacoorCityHall.lat.toFixed(6)}, ${bacoorCityHall.lng.toFixed(6)}
+          </p>
+          <div style="margin-top: 10px;">
+            <button onclick="window.open('https://maps.google.com/?q=${bacoorCityHall.lat},${bacoorCityHall.lng}', '_blank')" 
+                    style="background: #004aad; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+              Open in Google Maps
+            </button>
+          </div>
+        </div>
+      `
     });
     
     // Add click event to marker
@@ -191,6 +232,16 @@ function initMap() {
     
     // Open info window by default
     infoWindow.open(map, marker);
+    
+    // Add map bounds to ensure proper view
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(bacoorCityHall);
+    map.fitBounds(bounds);
+    
+    // Add a small padding to the bounds
+    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+      if (map.getZoom() > 18) map.setZoom(16);
+    });
     
     console.log("Google Maps initialized successfully");
   } catch (error) {
