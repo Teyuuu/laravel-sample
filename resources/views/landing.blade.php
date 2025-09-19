@@ -65,6 +65,41 @@
         </form>
     @endguest
   </div>
+  
+  <!-- Flash Messages -->
+  @if(session('success'))
+    <div class="alert alert-success" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #4CAF50; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      {{ session('success') }}
+    </div>
+  @endif
+  
+  @if(session('error'))
+    <div class="alert alert-error" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #f44336; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      {{ session('error') }}
+    </div>
+  @endif
+  
+  @if(session('info'))
+    <div class="alert alert-info" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #2196F3; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      {{ session('info') }}
+    </div>
+  @endif
+  
+  <script>
+    // Auto-hide flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function(alert) {
+        setTimeout(function() {
+          alert.style.opacity = '0';
+          alert.style.transform = 'translateX(100%)';
+          setTimeout(function() {
+            alert.remove();
+          }, 300);
+        }, 5000);
+      });
+    });
+  </script>
 
   <nav id="nav-menu">
     <ul class="nav-links">
