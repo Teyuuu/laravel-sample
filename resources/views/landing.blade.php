@@ -117,11 +117,31 @@
   </nav>
 </header>
   <!-- Hero Section ------------------------------------------------------------>
-  <section class="hero">
+ <section class="hero">
+  <div class="hero-content">
     <h2>WELCOME TO</h2>
     <h1>BACOOR E-GOV SYSTEM</h1>
-    
-  </section>
+  </div>
+
+  <div class="hero-images">
+  <div class="hex-row offset">
+    <div class="hexagon">
+      <img src="{{ asset('images/hex1.jpg') }}" alt="Meeting">
+    </div>
+  </div>
+
+  <div class="hex-row">
+    <div class="hexagon">
+      <img src="{{ asset('images/hex2.jpg') }}" alt="Team">
+    </div>
+    <div class="hexagon">
+      <img src="{{ asset('images/hex3.jpg') }}" alt="Discussion">
+    </div>
+  </div>
+</div>
+
+</section>
+
 <!-- Grid ----------------------------------------------------------------------->
 <!-- Greeting -->
 <div class="greeting">
